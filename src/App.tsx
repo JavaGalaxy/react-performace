@@ -1,35 +1,75 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { JSX, useState } from "react"
+import { User, UserResponse } from "./types/User"
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    const [count, setCount] = useState(0)
+    const [users, setUserData] = useState<UserResponse>()
+
+    const [newYorkers, setNewYorkers] = useState<JSX.Element[]>()
+
+    const incrementCount = () => {
+        setCount(prevCount => prevCount + 1)
+    }
+
+    const getUsers = async() => {
+        try {
+            const response = await fetch('https://dummyjson.com/users')
+            const users = await response.json();
+            setUserData(users)
+            return users; // Return the fetched data
+        } catch (error) {
+            console.log("Failed to fetch users: ", error)
+            return null;
+    }
+}
+
+    const getPeopleInNewYork = async() => {
+    const userData = await getUsers()
+        if (userData) {
+            const newYorkUsers = userData.users.filter(
+                (user: User) => user.address.city === 'New York'
+            ).map((user: User) => (
+                <div key={user.id}>
+                    {user.firstName}
+                </div>
+            ))
+            setNewYorkers(newYorkUsers)
+        }
+    }
+
+
+    return (
+        <div className="container">
+            <div className="row">
+                {`Hello`}
+            </div>
+            <div>
+                <button onClick={incrementCount}>Add Count</button>
+            </div>
+            <div>
+                {count}
+            </div>
+                <button onClick={getUsers}>Get All Users' city</button>
+            <div>
+                {
+                    users?.users.map((item) => (
+                        <div key={item.id}>
+                            {item.address.city}
+                        </div>
+                    ))
+                }
+            </div>
+
+            <div>
+                <button onClick={getPeopleInNewYork}>People living in New York</button>
+            </div>   
+             <div>
+                {newYorkers}
+            </div>   
+        </div>
+    )
 }
 
 export default App
