@@ -1,75 +1,48 @@
-import { JSX, useState } from "react"
-import { User, UserResponse } from "./types/User"
-import './App.css'
+import { useState } from "react"
+import { UserResponse } from "./types/User"
+import NYUsers from "./components/NyUsers"
+
 
 function App() {
 
-    const [count, setCount] = useState(0)
-    const [users, setUserData] = useState<UserResponse>()
+    const [users, setUsers] = useState<UserResponse>()
 
-    const [newYorkers, setNewYorkers] = useState<JSX.Element[]>()
-
-    const incrementCount = () => {
-        setCount(prevCount => prevCount + 1)
+    const printToParent = () => {
+        console.log('PRINT TO PARENT COMPONENT')
+        return 'PRINT TO PARENT COMPONENT'
     }
-
     const getUsers = async() => {
+
         try {
             const response = await fetch('https://dummyjson.com/users')
-            const users = await response.json();
-            setUserData(users)
-            return users; // Return the fetched data
-        } catch (error) {
-            console.log("Failed to fetch users: ", error)
-            return null;
-    }
-}
+            const users = await response.json()
 
-    const getPeopleInNewYork = async() => {
-    const userData = await getUsers()
-        if (userData) {
-            const newYorkUsers = userData.users.filter(
-                (user: User) => user.address.city === 'New York'
-            ).map((user: User) => (
-                <div key={user.id}>
-                    {user.firstName}
-                </div>
-            ))
-            setNewYorkers(newYorkUsers)
+            setUsers(users);
+            return users
+        } catch(err) {
+            console.log('Error fetching data', err)
         }
+        
     }
-
-
     return (
         <div className="container">
             <div className="row">
-                {`Hello`}
+                <button onClick={getUsers}>Show Users</button>
             </div>
-            <div>
-                <button onClick={incrementCount}>Add Count</button>
-            </div>
-            <div>
-                {count}
-            </div>
-                <button onClick={getUsers}>Get All Users' city</button>
-            <div>
+            <div className="row">
                 {
-                    users?.users.map((item) => (
-                        <div key={item.id}>
-                            {item.address.city}
+                    users?.users.map((user) => (
+                        <div key={user.id}>
+                            {user.firstName}
                         </div>
                     ))
                 }
             </div>
 
-            <div>
-                <button onClick={getPeopleInNewYork}>People living in New York</button>
-            </div>   
-             <div>
-                {newYorkers}
-            </div>   
+            <NYUsers getUsers={getUsers} printToParent={printToParent}/>
         </div>
     )
+
 }
 
 export default App
