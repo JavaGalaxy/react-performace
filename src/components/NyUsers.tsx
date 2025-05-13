@@ -1,4 +1,4 @@
-import { JSX, useState } from "react"
+import { JSX, useCallback, useState } from "react"
 import { UserResponse } from "../types/User";
 
 interface NYUsersProps {
@@ -11,8 +11,7 @@ const NYUsers = ({ getUsers, printToParent }: NYUsersProps): JSX.Element => {
     const [nyUsers, setNYUsers] = useState<UserResponse['users']>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
-    const getNYusers = async() => {
-
+    const getNYusers = useCallback(async() => {
         setIsLoading(true);
         try {
             const allUsers: UserResponse = await getUsers()
@@ -24,7 +23,7 @@ const NYUsers = ({ getUsers, printToParent }: NYUsersProps): JSX.Element => {
         } finally {
             setIsLoading(false)
         }
-    }
+    }, [getUsers])
 
     return (
         <section className="container">
